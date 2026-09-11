@@ -130,7 +130,7 @@ export default function SubmissionDetailsPage() {
           <article><span><ShieldCheck size={13} /></span><p><b>Documents contrôlés</b><small>{documents.length} pièce(s) associée(s) à l’offre.</small><time>Score {globalScore}/100</time></p></article>
           <article><span><FileCheck2 size={13} /></span><p><b>Soumission déposée</b><small>Accusé : {offer.accuseReception}</small><time>{new Intl.DateTimeFormat('fr-SN', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(offer.dateSoumission || offer.createdAt))}</time></p></article>
         </div>
-        <button className="authority-btn authority-btn--ghost" type="button">Voir tout l’historique</button>
+        <button className="authority-btn authority-btn--ghost" onClick={() => showToast('Tout l’historique disponible est affiché')} type="button">Voir tout l’historique</button>
         <div className="submission-summary"><span>Montant proposé</span><b>{amount}</b><small>Délai : {offer.delaiExecutionJours || '—'} jours</small></div>
       </aside>
     </div>

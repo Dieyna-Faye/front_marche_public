@@ -1,6 +1,6 @@
 import {
-  ArrowRight, CalendarDays, CheckCircle2, Eye, Grid2X2, List,
-  Megaphone, Pencil, Plus, ShieldCheck, UsersRound,
+  ArrowRight, CalendarDays, CheckCircle2, Grid2X2, List,
+  Megaphone, Plus, ShieldCheck, UsersRound,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -9,7 +9,6 @@ import { Badge, EmptyState, PageHeader, SearchFilter } from '../components/ui'
 import { useApp } from '../context/useApp'
 import { tenderService } from '../services/tenderService'
 import { formatMoney, toTenderView } from '../utils/formatters'
-import tenderImage from '../assets/tender-handshake.png'
 
 const statusOptions = [
   ['', 'Tous les statuts'],
@@ -36,16 +35,10 @@ function AuthorityTenders({ rows, search, setSearch, status, setStatus, type, se
     </section>
 
     {loading && <div className="authority-inline-status"><span className="spinner" /> Chargement des appels d’offres…</div>}
-    {error && <p className="authority-inline-error">Les données de démonstration sont affichées : {error}</p>}
+    {error && <p className="authority-inline-error">Impossible de charger les appels d’offres : {error}</p>}
 
     <div className="authority-tender-grid">
-      {displayRows.filter((tender) => `${tender.title} ${tender.id}`.toLowerCase().includes(search.toLowerCase())).map((tender) => {
-        const code = String(tender.id).startsWith('AO-') ? tender.id : `AO-${tender.id}`
-        return <article className="authority-tender-card" key={tender.id}>
-          <div className="authority-tender-card__image"><img src={tenderImage} alt="Réunion autour d’un appel d’offres" /><span>{tender.status?.toUpperCase()}</span><div><Link title="Consulter" to={`/app/appels-offres/${tender.id}`}><Eye size={13} /></Link><Link title="Modifier" to={`/app/appels-offres/${tender.id}/modifier`}><Pencil size={13} /></Link></div></div>
-          <div className="authority-tender-card__body"><small>{code} · {tender.type}</small><h2>{tender.title}</h2><p>{tender.description}</p><div><em>{tender.deadline}</em><em>{tender.budget}</em><em>{tender.type}</em></div></div>
-        </article>
-      })}{!loading && !error && displayRows.length === 0 && <p className="empty-copy">Aucun appel d’offres enregistré.</p>}
+      {displayRows.filter((tender) => `${tender.title} ${tender.id}`.toLowerCase().includes(search.toLowerCase())).map((tender) => <TenderCard tender={tender} role="authority" key={tender.id} />)}{!loading && !error && displayRows.length === 0 && <p className="empty-copy">Aucun appel d’offres enregistré.</p>}
     </div>
 
     <div className="authority-tender-pagination"><span>Affichage de {displayRows.length} résultat(s)</span><div><button type="button">‹</button><button className="active" type="button">1</button><button type="button">›</button></div></div>
@@ -90,7 +83,7 @@ export default function TendersPage({ publicView = false }) {
       : filtered.length === 0
         ? <EmptyState icon={Megaphone} title="Aucun appel d’offres" description="Aucun résultat ne correspond aux critères sélectionnés." />
         : view === 'grid'
-          ? <div className={`tender-grid ${publicView ? 'tender-grid--public' : ''}`}>{filtered.map((tender) => <TenderCard tender={tender} publicView={publicView} key={tender.id} />)}</div>
+          ? <div className={`tender-grid ${publicView ? 'tender-grid--public' : ''}`}>{filtered.map((tender) => <TenderCard tender={tender} publicView={publicView} role={role} key={tender.id} />)}</div>
           : <div className="table-card"><table><thead><tr><th>Référence & objet</th><th>Autorité</th><th>Budget</th><th>Échéance</th><th>Statut</th><th /></tr></thead><tbody>{filtered.map((tender) => <tr key={tender.id}><td><Link className="table-title" to={`${publicView ? '/appels-offres' : '/app/appels-offres'}/${tender.id}`}><b>{tender.title}</b><span>AO-{tender.id} · {tender.type}</span></Link></td><td>{tender.authority}</td><td><b>{tender.budget}</b></td><td>{tender.deadline}</td><td><Badge tone={tender.status === 'Publié' ? 'green' : tender.status === 'Brouillon' ? 'orange' : 'neutral'} dot>{tender.status}</Badge></td><td><Link className="icon-button" to={`${publicView ? '/appels-offres' : '/app/appels-offres'}/${tender.id}`}>→</Link></td></tr>)}</tbody></table></div>
 
   if (role === 'authority' && !publicView) return <AuthorityTenders rows={filtered} search={search} setSearch={setSearch} status={status} setStatus={setStatus} type={type} setType={setType} loading={loading} error={error} />

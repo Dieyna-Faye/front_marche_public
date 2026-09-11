@@ -39,6 +39,19 @@ export default function EvaluationsPage() {
   const amount = Number(selected?.montantPropose || 0)
   const gap = budget ? Math.round(Math.abs(1 - amount / budget) * 100) : 0
   const success = selected ? Math.min(100, Math.round(60 + documents.length * 7 + Math.max(0, 20 - gap))) : 0
+  const downloadDocument = async (document) => {
+    try {
+      const blob = await offerService.downloadDocument(selected.id, document.id)
+      const url = URL.createObjectURL(blob)
+      const anchor = window.document.createElement('a')
+      anchor.href = url
+      anchor.download = document.nomOriginal
+      anchor.click()
+      URL.revokeObjectURL(url)
+    } catch (requestError) {
+      showToast(requestError.message, 'error')
+    }
+  }
 
   if (loading) return <div className="loading-state"><span className="spinner" /> Chargement de l’analyse…</div>
   if (error) return <p className="authority-inline-error">{error}</p>
@@ -50,7 +63,7 @@ export default function EvaluationsPage() {
     {!selected ? <p className="authority-inline-error">Aucune soumission n’a encore été déposée pour cet appel d’offres.</p> : <div className="authority-analysis-grid">
       <main>
         <section className="authority-strategy"><h2><Sparkles size={15} /> RÉSULTAT STRATÉGIQUE <span>ÉCART BUDGÉTAIRE : {gap}%</span></h2><p>La soumission de {selected.fournisseur?.nom} est analysée à partir du montant proposé, du délai d’exécution et des {documents.length} pièce(s) réellement enregistrée(s).</p><div><span><small>OFFRE ANALYSÉE</small><b>{formatMoney(selected.montantPropose)} · {selected.delaiExecutionJours} jours</b><em>{selected.statut?.replaceAll('_', ' ')}</em></span><span><small>RECOMMANDATION</small><b>{documents.length >= 3 ? 'Dossier suffisamment documenté pour une revue humaine.' : 'Demander des pièces complémentaires avant décision.'}</b></span></div></section>
-        <section className="authority-verification"><header><h2>Vérification des pièces</h2></header><table><thead><tr><th>DOCUMENT</th><th>FICHIER</th><th>STATUT</th><th>ACTION</th></tr></thead><tbody>{documents.map((document) => <tr key={document.id}><td><b>{document.type?.replaceAll('_', ' ')}</b><small>Document #{document.id}</small></td><td>{document.nomOriginal}</td><td><em><Check size={11} />DÉPOSÉ</em></td><td><button type="button">•••</button></td></tr>)}</tbody></table>{documents.length === 0 && <p className="empty-copy">Aucune pièce déposée.</p>}<footer>Contrôle calculé depuis les documents de la soumission</footer></section>
+        <section className="authority-verification"><header><h2>Vérification des pièces</h2></header><table><thead><tr><th>DOCUMENT</th><th>FICHIER</th><th>STATUT</th><th>ACTION</th></tr></thead><tbody>{documents.map((document) => <tr key={document.id}><td><b>{document.type?.replaceAll('_', ' ')}</b><small>Document #{document.id}</small></td><td>{document.nomOriginal}</td><td><em><Check size={11} />DÉPOSÉ</em></td><td><button onClick={() => downloadDocument(document)} title="Télécharger" type="button"><Download size={13} /></button></td></tr>)}</tbody></table>{documents.length === 0 && <p className="empty-copy">Aucune pièce déposée.</p>}<footer>Contrôle calculé depuis les documents de la soumission</footer></section>
       </main>
       <aside className="authority-analysis-aside"><section className="authority-success-score"><span>SCORE DOCUMENTAIRE</span><strong>{success}%</strong><em>{success >= 80 ? '↗ SATISFAISANT' : 'À COMPLÉTER'}</em><i><b style={{ width: `${success}%` }} /></i><small>Calcul basé sur les pièces déposées et l’écart avec le budget estimatif.</small></section><section className="authority-analysis-alerts"><h2>ALERTES</h2><article><span><ShieldAlert size={14} /></span><p><b>Budget</b><small>Écart de {gap}% avec l’estimation</small></p></article><article><span><AlertTriangle size={14} /></span><p><b>Documents</b><small>{documents.length} pièce(s) disponible(s)</small></p></article><h3>MATRICE DE RISQUES</h3><div><span>Documentaire <b>{Math.max(0, 100 - documents.length * 14)}%</b></span><i><em style={{ width: `${Math.max(0, 100 - documents.length * 14)}%` }} /></i><span>Financier <b>{gap}%</b></span><i><em style={{ width: `${Math.min(100, gap)}%` }} /></i></div></section></aside>
     </div>}

@@ -30,6 +30,7 @@ export default function AppLayout() {
   const navigate = useNavigate()
   const profileRef = useRef(null)
   const items = navigation.filter((item) => item.roles.includes(role))
+  const usesDashboardShell = ['admin', 'authority', 'supplier', 'commission', 'auditor'].includes(role)
 
   useEffect(() => {
     setSidebarOpen(false)
@@ -45,10 +46,10 @@ export default function AppLayout() {
   }, [])
 
   return (
-    <div className={`app-shell ${['admin', 'authority', 'supplier'].includes(role) ? 'app-shell--admin' : ''}`}>
+    <div className={`app-shell ${usesDashboardShell ? 'app-shell--admin' : ''}`}>
       <aside className={`sidebar ${sidebarOpen ? 'sidebar--open' : ''}`}>
         <div className="sidebar__top">
-          <Logo compact={['admin', 'authority', 'supplier'].includes(role)} light={!['admin', 'authority', 'supplier'].includes(role)} />
+          <Logo compact={usesDashboardShell} light={false} />
           <button className="sidebar__close" onClick={() => setSidebarOpen(false)} type="button"><X size={22} /></button>
         </div>
         <nav className="sidebar__nav" aria-label="Navigation principale">

@@ -1,19 +1,27 @@
-import { KeyRound, Plus, ShieldCheck, UserX, UsersRound } from 'lucide-react'
+import { Pencil, Plus, Trash2, UsersRound } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Badge, EmptyState, Modal, PageHeader, SearchFilter, StatCard } from '../components/ui'
+import { EmptyState, Modal } from '../components/ui'
 import { useApp } from '../context/useApp'
 import { userService } from '../services/userService'
-import { roleLabels } from '../utils/formatters'
+import { formatDate, roleLabels } from '../utils/formatters'
 
-const roles = Object.entries(roleLabels)
-const initialForm = { nom: '', email: '', motDePasse: '', role: 'FOURNISSEUR' }
+const roleFilters = [
+  ['ALL', 'Tous'],
+  ['FOURNISSEUR', 'Fournisseurs'],
+  ['AUTORITE_CONTRACTANTE', 'Autorité Contractante'],
+  ['COMMISSION_EVALUATION', "Commission d’évaluation"],
+  ['AUDITEUR', 'Auditeur'],
+  ['ADMIN', 'Administrateur'],
+]
+
+const initials = (name = '') => name.split(/\s+/).filter(Boolean).map((part) => part[0]).slice(0, 2).join('').toUpperCase()
 
 export default function UsersPage() {
-  const [search, setSearch] = useState('')
   const [users, setUsers] = useState([])
-  const [modalOpen, setModalOpen] = useState(false)
-  const [form, setForm] = useState(initialForm)
+  const [roleFilter, setRoleFilter] = useState('ALL')
+  const [editing, setEditing] = useState(null)
+  const [editRole, setEditRole] = useState('FOURNISSEUR')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -33,34 +41,24 @@ export default function UsersPage() {
 
   useEffect(() => { load() }, [])
 
-  const filtered = useMemo(() => users.filter((user) =>
-    `${user.nom} ${user.email}`.toLowerCase().includes(search.toLowerCase()),
-  ), [search, users])
+  const filtered = useMemo(() => users.filter((user) => roleFilter === 'ALL' || user.role === roleFilter), [roleFilter, users])
 
-  const createUser = async (event) => {
-    event.preventDefault()
-    setSaving(true)
-    setError('')
-    try {
-      const created = await userService.create(form)
-      setUsers((current) => [created, ...current])
-      setForm(initialForm)
-      setModalOpen(false)
-      showToast('Utilisateur créé')
-    } catch (requestError) {
-      setError(requestError.message)
-    } finally {
-      setSaving(false)
-    }
+  const openEdit = (user) => {
+    setEditing(user)
+    setEditRole(user.role)
   }
 
-  const updateRole = async (user, role) => {
+  const updateRole = async () => {
+    setSaving(true)
     try {
-      const updated = await userService.updateRole(user.id, role)
-      setUsers((current) => current.map((item) => item.id === user.id ? updated : item))
+      const updated = await userService.updateRole(editing.id, editRole)
+      setUsers((current) => current.map((item) => item.id === editing.id ? updated : item))
+      setEditing(null)
       showToast('Rôle mis à jour')
     } catch (requestError) {
       showToast(requestError.message, 'error')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -75,21 +73,22 @@ export default function UsersPage() {
     }
   }
 
-  return (
-    <>
-      <PageHeader eyebrow="ADMINISTRATION" title="Utilisateurs & rôles" description="Gérez les comptes et les cinq rôles définis par le backend." actions={<Link className="btn btn--primary" to="/app/utilisateurs/nouveau"><Plus size={17} /> Créer un utilisateur</Link>} />
-      <div className="stats-grid stats-grid--three"><StatCard icon={UsersRound} label="Utilisateurs" value={users.length} helper="comptes retournés par l’API" tone="navy" /><StatCard icon={KeyRound} label="Rôles configurés" value={roles.length} helper="rôles backend" tone="orange" /><StatCard icon={ShieldCheck} label="Accès" value="JWT" helper="routes protégées" tone="green" /></div>
-      <div className="list-toolbar"><SearchFilter value={search} onChange={setSearch} placeholder="Rechercher par nom ou adresse e-mail…" /></div>
-      {loading ? <div className="loading-state"><span className="spinner" /> Chargement des utilisateurs…</div> : error && !modalOpen ? <EmptyState icon={UsersRound} title="Utilisateurs indisponibles" description={error} /> : <div className="table-card"><table><thead><tr><th>Utilisateur</th><th>Rôle</th><th>Statut</th><th>Modifier le rôle</th><th /></tr></thead><tbody>{filtered.map((user) => <tr key={user.id}><td><div className="identity-cell"><span>{user.nom.split(' ').map((word) => word[0]).slice(0, 2).join('')}</span><p><b>{user.nom}</b><small>{user.email}</small></p></div></td><td><Badge tone="blue">{roleLabels[user.role] || user.role}</Badge></td><td><Badge tone="green" dot>Actif</Badge></td><td><select className="small-select" value={user.role} onChange={(event) => updateRole(user, event.target.value)}>{roles.map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></td><td><button className="icon-button" onClick={() => deactivate(user)} type="button" aria-label={`Désactiver ${user.nom}`}><UserX size={17} /></button></td></tr>)}</tbody></table></div>}
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Créer un utilisateur" footer={<><button className="btn btn--ghost" onClick={() => setModalOpen(false)} type="button">Annuler</button><button className="btn btn--primary" disabled={saving} form="create-user-form" type="submit">{saving ? <span className="spinner" /> : 'Créer le compte'}</button></>}>
-        <form className="form" id="create-user-form" onSubmit={createUser}>
-          <label>Nom complet<input value={form.nom} onChange={(event) => setForm({ ...form, nom: event.target.value })} required /></label>
-          <label>Adresse e-mail<input type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} required /></label>
-          <label>Mot de passe initial<input type="password" minLength="6" value={form.motDePasse} onChange={(event) => setForm({ ...form, motDePasse: event.target.value })} required /></label>
-          <label>Rôle<select value={form.role} onChange={(event) => setForm({ ...form, role: event.target.value })}>{roles.map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
-          {error && <p className="form-error" role="alert">{error}</p>}
-        </form>
-      </Modal>
-    </>
-  )
+  return <div className="admin-users-page">
+    <header className="admin-users-head"><div><h1>Gestion des utilisateurs</h1><p>Supervisez et gérez l’ensemble des utilisateurs.</p></div><Link to="/app/utilisateurs/nouveau"><Plus size={13} /> Nouvel utilisateur</Link></header>
+
+    <article className="admin-users-total"><header><span>Utilisateurs</span><UsersRound size={41} /></header><strong>{users.length}</strong><small>Total compté de tous les utilisateurs</small></article>
+
+    <nav className="admin-role-tabs" aria-label="Filtrer les utilisateurs par rôle">{roleFilters.map(([value, label]) => <button className={roleFilter === value ? 'active' : ''} onClick={() => setRoleFilter(value)} type="button" key={value}>{label}<small>{value === 'ALL' ? users.length : users.filter((user) => user.role === value).length}</small></button>)}</nav>
+
+    {loading ? <div className="loading-state"><span className="spinner" /> Chargement des utilisateurs…</div> : error ? <EmptyState icon={UsersRound} title="Utilisateurs indisponibles" description={error} /> : filtered.length === 0 ? <EmptyState icon={UsersRound} title="Aucun utilisateur" description="Aucun compte ne correspond au rôle sélectionné." /> : <div className="admin-user-grid">{filtered.map((user) => <article className="admin-user-card" key={user.id}>
+      <header><span>{initials(user.nom)}</span><div><button onClick={() => deactivate(user)} title="Désactiver" type="button"><Trash2 size={15} /></button><button onClick={() => openEdit(user)} title="Modifier le rôle" type="button"><Pencil size={14} /></button></div></header>
+      <h2>{user.nom}</h2><p>{user.email}</p><small>{roleLabels[user.role] || user.role}</small><time>Enregistré le {formatDate(user.createdAt)}</time>
+    </article>)}</div>}
+
+    <footer className="admin-users-footer">Affichage de 1 à {filtered.length} sur {filtered.length} résultat(s)</footer>
+
+    <Modal open={Boolean(editing)} onClose={() => setEditing(null)} title="Modifier le rôle" footer={<><button className="btn btn--ghost" onClick={() => setEditing(null)} type="button">Annuler</button><button className="btn btn--primary" disabled={saving} onClick={updateRole} type="button">{saving ? <span className="spinner" /> : 'Enregistrer'}</button></>}>
+      {editing && <div className="form"><p><b>{editing.nom}</b><br /><small>{editing.email}</small></p><label>Rôle<select value={editRole} onChange={(event) => setEditRole(event.target.value)}>{roleFilters.filter(([value]) => value !== 'ALL').map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label></div>}
+    </Modal>
+  </div>
 }

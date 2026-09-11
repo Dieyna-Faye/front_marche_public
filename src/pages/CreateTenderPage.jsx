@@ -85,7 +85,7 @@ export default function CreateTenderPage() {
           <p>Configurez les paramètres de votre appel d’offre. Notre IA vous assistera dans la rédaction et la validation des clauses critiques.</p>
         </div>
         <div className="authority-page-head__actions">
-          <button className="authority-btn authority-btn--ghost" type="button"><Save size={14} /> Brouillon</button>
+          <button className="authority-btn authority-btn--ghost" form="authority-tender-form" disabled={loading} type="submit"><Save size={14} /> Brouillon</button>
           <button className="authority-btn authority-btn--dark" form="authority-tender-form" disabled={loading} type="submit">
             {loading ? <span className="spinner" /> : <>Suivant <ChevronRight size={15} /></>}
           </button>
@@ -140,7 +140,7 @@ export default function CreateTenderPage() {
         </section>
 
         <section className="authority-critical">
-          <header><h2>Paramètres Critiques</h2><button type="button">Modifier</button></header>
+          <header><h2>Paramètres Critiques</h2><button onClick={() => document.querySelector('[name="budgetEstimatif"]')?.focus()} type="button">Modifier</button></header>
           <div>
             <label>Budget estimé<input name="budgetEstimatif" type="number" min="1" value={form.budgetEstimatif} onChange={update} placeholder="450 000 €" required /></label>
             <label>Date de clôture<input name="dateLimiteSoumission" type="datetime-local" value={form.dateLimiteSoumission} onChange={update} required /></label>

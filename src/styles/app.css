@@ -145,7 +145,7 @@
 .admin-chart > header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
 .admin-chart h2, .admin-markets h2 { margin: 0 0 5px; font-size: 20px; line-height: 1.2; }
 .admin-chart header p, .admin-markets header p { margin: 0; color: #7c8b93; font-size: 10px; }
-.admin-chart header button { min-height: 31px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #dbe5e9; border-radius: 5px; background: #fff; color: var(--navy); font-size: 9px; font-weight: 700; }
+.admin-chart header button, .admin-chart header a { min-height: 31px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #dbe5e9; border-radius: 5px; background: #fff; color: var(--navy); font-size: 9px; font-weight: 700; text-decoration: none; }
 .admin-chart__plot { position: relative; height: 240px; margin-top: 17px; padding: 0 0 24px 32px; background: repeating-linear-gradient(to top, transparent 0,transparent 53px,#edf2f4 54px); }
 .admin-chart__plot svg { width: 100%; height: 100%; overflow: visible; }
 .admin-chart__area { fill: url(#adminArea); }
@@ -881,4 +881,63 @@
   .authority-audit-filters, .authority-audit-reports > div, .supplier-dashboard__stats, .supplier-submission-layout > aside { grid-template-columns: 1fr; }
   .supplier-submission-steps { overflow-x: auto; }
   .supplier-submission-steps { width: 100%; grid-template-columns: repeat(4, 150px); }
+}
+
+/* Figma — gestion des utilisateurs administrateur */
+.admin-users-page { width: min(100%, 1370px); margin: 0 auto; }
+.admin-users-head { margin-bottom: 38px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.admin-users-head h1 { margin: 0 0 10px; font-size: 40px; }
+.admin-users-head p { margin: 0; color: #78909c; font-size: 12px; }
+.admin-users-head > a { min-height: 38px; padding: 0 18px; display: inline-flex; align-items: center; gap: 5px; border-radius: 5px; background: var(--navy); color: #fff; font-size: 10px; font-weight: 800; }
+.admin-users-total { width: 390px; min-height: 190px; margin-bottom: 30px; padding: 28px 26px; border-radius: 14px; background: var(--navy); color: #fff; }
+.admin-users-total header { display: flex; align-items: center; justify-content: space-between; }
+.admin-users-total header span { font-size: 12px; font-weight: 800; }
+.admin-users-total header svg { color: #95a8b2; }
+.admin-users-total strong { display: block; margin: -12px 0 25px; color: #c8d9e6; font: 700 41px 'Outfit'; }
+.admin-users-total small { color: #d6e0e5; font-size: 10px; }
+.admin-role-tabs { margin-bottom: 29px; display: flex; flex-wrap: wrap; gap: 14px; }
+.admin-role-tabs button { min-height: 48px; padding: 0 15px; display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 7px; background: #c8dce6; color: var(--navy); font-size: 12px; font-weight: 800; cursor: pointer; }
+.admin-role-tabs button small { min-width: 20px; padding: 2px 5px; border-radius: 9px; background: rgba(255,255,255,.55); font-size: 8px; }
+.admin-role-tabs button.active { box-shadow: inset 0 -3px 0 var(--navy); background: #b9d1dd; }
+.admin-user-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+.admin-user-card { min-width: 0; min-height: 135px; padding: 16px; border: 1px solid #d4e0e5; border-left: 2px solid var(--navy); border-radius: 14px; background: #fff; box-shadow: 0 3px 5px rgba(47,65,86,.18); }
+.admin-user-card header { display: flex; align-items: center; justify-content: space-between; }
+.admin-user-card header > span { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; background: #62899a; color: #fff; font-size: 10px; font-weight: 800; }
+.admin-user-card header > div { display: flex; gap: 7px; }
+.admin-user-card header button { width: 24px; height: 24px; padding: 0; display: grid; place-items: center; border: 0; background: transparent; color: #607884; cursor: pointer; }
+.admin-user-card h2 { margin: 12px 0 5px; overflow: hidden; font-size: 14px; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
+.admin-user-card p { margin: 0 0 7px; overflow: hidden; color: #7a8c94; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.admin-user-card > small { padding: 3px 7px; border-radius: 10px; background: #e8f0f4; color: #567c8d; font-size: 7px; font-weight: 700; }
+.admin-user-card time { margin-top: 9px; display: block; color: #e16857; font-size: 8px; text-align: right; }
+.admin-users-footer { margin-top: 54px; color: #7c8f98; font-size: 9px; }
+
+/* Figma — cartes des appels d’offres dans les espaces connectés */
+.dashboard-tender-card { position: relative; min-width: 0; min-height: 390px; overflow: hidden; border-radius: 18px; background: #142431; color: #fff; }
+.dashboard-tender-card > img, .dashboard-tender-card__overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
+.dashboard-tender-card > img { object-fit: cover; }
+.dashboard-tender-card__overlay { background: linear-gradient(180deg, rgba(9,18,24,.04) 8%, rgba(8,15,20,.20) 35%, rgba(6,12,16,.96) 100%); }
+.dashboard-tender-card__body { position: absolute; z-index: 2; right: 0; bottom: 0; left: 0; padding: 22px 14px 16px; }
+.dashboard-tender-card__body > small { display: block; margin-bottom: 7px; overflow: hidden; color: #c9d3d8; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+.dashboard-tender-card h2 { min-height: 38px; margin: 0 0 8px; display: -webkit-box; overflow: hidden; color: #fff; font-size: 16px; line-height: 19px; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.dashboard-tender-card p { min-height: 48px; margin: 0 0 12px; display: -webkit-box; overflow: hidden; color: #c5cdd1; font-size: 9px; line-height: 15px; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+.dashboard-tender-card__meta { display: flex; flex-wrap: wrap; gap: 5px; }
+.dashboard-tender-card__meta span { max-width: 42%; padding: 5px 8px; overflow: hidden; border-radius: 20px; background: rgba(255,255,255,.18); color: #fff; font-size: 7px; text-overflow: ellipsis; white-space: nowrap; backdrop-filter: blur(5px); }
+.dashboard-tender-card__meta span:first-child { background: #39a36e; }
+.dashboard-tender-card__actions { margin-top: 13px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.dashboard-tender-card__actions a { min-width: 0; min-height: 34px; padding: 0 8px; display: flex; align-items: center; justify-content: center; gap: 4px; border: 1px solid rgba(255,255,255,.88); border-radius: 20px; color: #fff; font-size: 8px; font-weight: 800; text-align: center; }
+.dashboard-tender-card__actions a:first-child { border-color: #f5efe8; background: #f5efe8; color: var(--navy); }
+
+@media (max-width: 1150px) {
+  .admin-user-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 850px) {
+  .admin-user-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-users-head h1 { font-size: 33px; }
+}
+@media (max-width: 560px) {
+  .admin-users-head { align-items: flex-start; flex-direction: column; }
+  .admin-users-total { width: 100%; }
+  .admin-user-grid { grid-template-columns: 1fr; }
+  .admin-role-tabs { display: grid; grid-template-columns: 1fr 1fr; }
+  .admin-role-tabs button { justify-content: space-between; }
 }
