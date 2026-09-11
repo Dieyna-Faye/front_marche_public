@@ -8,14 +8,16 @@
   --p-muted: #647681;
   --p-line: #dfe8ed;
   min-height: 100vh;
+  overflow-x: clip;
+  overflow-y: visible;
   color: var(--p-ink);
   background: #fff;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--font-text);
 }
 
 .p-site h1, .p-site h2, .p-site h3 { font-family: 'Outfit', sans-serif; color: var(--p-ink); }
 .p-container { width: min(1160px, calc(100% - 64px)); margin-inline: auto; }
-.p-header { position: absolute; z-index: 80; top: 26px; left: 50%; width: min(1160px, calc(100% - 56px)); height: 76px; padding: 0 34px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(47,65,86,.06); border-radius: 12px; background: rgba(255,255,255,.98); box-shadow: 0 13px 32px rgba(19,40,54,.16); transform: translateX(-50%); backdrop-filter: blur(12px); }
+.p-header { position: fixed; z-index: 80; top: 26px; left: 50%; width: min(1160px, calc(100% - 56px)); height: 76px; padding: 0 34px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(47,65,86,.06); border-radius: 12px; background: rgba(255,255,255,.98); box-shadow: 0 13px 32px rgba(19,40,54,.16); transform: translateX(-50%); backdrop-filter: blur(12px); }
 .p-brand { display: inline-flex; align-items: center; gap: 2px; color: var(--p-ink); font: 500 16px 'Outfit',sans-serif; letter-spacing: -.02em; }
 .p-brand > span { width: 27px; height: 27px; margin-right: 6px; display: grid; place-items: center; border-radius: 50%; background: var(--p-navy); color: white; }
 .p-brand b { font-weight: 700; }
@@ -365,7 +367,7 @@
 @media (max-width: 960px) {
   .p-header { top: 14px; width: calc(100% - 28px); height: 62px; padding: 0 18px; }
   .p-header__menu { display: grid; }
-  .p-header nav { position: absolute; top: 70px; right: 0; left: 0; padding: 18px 24px 24px; display: none; flex-direction: column; align-items: stretch; gap: 0; border: 1px solid var(--p-line); border-radius:10px; background: white; box-shadow: 0 14px 30px rgba(47,65,86,.12); }
+  .p-header nav { position: absolute; top: 70px; right: 0; left: 0; max-height: calc(100vh - 100px); padding: 18px 24px 24px; overflow-y: auto; display: none; flex-direction: column; align-items: stretch; gap: 0; border: 1px solid var(--p-line); border-radius:10px; background: white; box-shadow: 0 14px 30px rgba(47,65,86,.12); }
   .p-header nav.is-open { display: flex; }
   .p-header nav > a:not(.p-button) { padding: 13px 0; }
   .p-header nav > a:not(.p-button)::after { bottom: 8px; right: auto; width: 25px; }
