@@ -4,9 +4,11 @@ import {
   Shield, Signature, Sparkles, Target, TrendingUp, UsersRound,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import PublicTenderCard from '../components/PublicTenderCard'
 import tenderImage from '../assets/tender-handshake.png'
-import { publicTenders } from '../data/publicContent'
+import { tenderService } from '../services/tenderService'
+import { formatMoney, toTenderView } from '../utils/formatters'
 
 const benefits = [
   [Network, 'Gestion centralisée', "Un tableau de bord unique pour piloter l’ensemble de vos marchés et documents."],
@@ -26,6 +28,9 @@ const tools = [
 ]
 
 export default function LandingPage() {
+  const [tenders, setTenders] = useState([])
+  useEffect(() => { let active = true; tenderService.publicList().then((items) => { if (active) setTenders(items.map(toTenderView)) }).catch(() => { if (active) setTenders([]) }); return () => { active = false } }, [])
+  const budget = tenders.reduce((sum, tender) => sum + Number(tender.estimatedBudget || 0), 0)
   return (
     <main>
       <section className="p-home-hero" style={{ '--p-hero-image': `url(${tenderImage})` }}>
@@ -38,7 +43,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="p-stats"><div className="p-container"><span><strong>12k+</strong><small>Marchés publiés</small></span><span><strong>45k+</strong><small>Fournisseurs inscrits</small></span><span><strong>8.5B€</strong><small>Montant des marchés</small></span><span><strong>100%</strong><small>Procédures traçables</small></span></div></section>
+      <section className="p-stats"><div className="p-container"><span><strong>{tenders.length}</strong><small>Appels publiés</small></span><span><strong>—</strong><small>Fournisseurs inscrits</small></span><span><strong>{formatMoney(budget)}</strong><small>Budget des appels publiés</small></span><span><strong>—</strong><small>Historique d’audit public</small></span></div></section>
 
       <section className="p-section p-why"><div className="p-container">
         <header className="p-section-title p-section-title--left"><span>EXCELLENCE ET TRANSPARENCE</span><h2>Pourquoi choisir ProcureAI ?</h2><p>L’alliance de la rigueur institutionnelle et de l’innovation technologique pour une gestion sans faille.</p></header>
@@ -68,7 +73,7 @@ export default function LandingPage() {
 
       <section className="p-section p-latest"><div className="p-container">
         <header className="p-section-title p-section-title--row"><div><span>APPEL D’OFFRES</span><h2>Derniers appels d’offres</h2><p>Consulter les opportunités les plus récentes publiées sur la plateforme</p></div><Link className="p-text-link" to="/appels-offres">Voir tout <ArrowRight size={14} /></Link></header>
-        <div className="p-tender-grid">{publicTenders.slice(0, 3).map((tender) => <PublicTenderCard tender={tender} key={tender.id} />)}</div>
+        <div className="p-tender-grid">{tenders.slice(0, 3).map((tender) => <PublicTenderCard tender={tender} key={tender.id} />)}{tenders.length === 0 && <p>Aucun appel d’offres publié pour le moment.</p>}</div>
       </div></section>
 
       <section className="p-section p-final-cta"><div className="p-container"><div><h2>Rejoignez une plateforme moderne pour vos marchés publics</h2><p>Centralisez vos procédures, collaborez efficacement et prenez de meilleures décisions.</p><div className="p-actions"><Link className="p-button p-button--light" to="/connexion">Accéder à la plateforme</Link><Link className="p-button p-button--glass" to="/contact">Nous contacter</Link></div></div></div></section>

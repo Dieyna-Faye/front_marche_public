@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   BarChart3, BrainCircuit, Building2, ChevronDown, FileSignature, Files, FileStack,
-  LayoutDashboard, LogOut, Menu, Megaphone, ScrollText, Search, ShieldAlert, UsersRound, X,
+  LayoutDashboard, LogOut, Menu, Megaphone, ScrollText, Search, Settings2, ShieldAlert, UsersRound, X,
 } from 'lucide-react'
 import Logo from './Logo'
 import { useApp } from '../context/useApp'
@@ -11,14 +11,16 @@ const navigation = [
   { to: '/app', label: 'Vue d’ensemble', icon: LayoutDashboard, end: true, roles: ['admin', 'authority', 'supplier', 'commission', 'auditor'] },
   { to: '/app/appels-offres', label: "Appels d’offres", icon: Megaphone, roles: ['admin', 'authority', 'supplier', 'commission', 'auditor'] },
   { to: '/app/soumissions', label: 'Soumissions', icon: FileStack, roles: ['admin', 'authority', 'supplier', 'commission', 'auditor'] },
+  { to: '/app/assistant', label: 'Assistant', icon: BrainCircuit, roles: ['admin', 'authority', 'supplier', 'commission', 'auditor'] },
   { to: '/app/fournisseurs', label: 'Fournisseurs', icon: Building2, roles: ['authority'] },
-  { to: '/app/analyse', label: 'Analyse', icon: BrainCircuit, roles: ['authority'] },
-  { to: '/app/scoring', label: 'Scoring', icon: BarChart3, roles: ['authority'] },
-  { to: '/app/audit', label: 'Audit', icon: ScrollText, roles: ['authority'] },
+  { to: '/app/analyse', label: 'Analyse approfondie', icon: BrainCircuit, roles: ['commission'] },
+  { to: '/app/scoring', label: 'Scoring', icon: BarChart3, roles: ['admin', 'authority', 'commission'] },
+  { to: '/app/audit', label: 'Historique', icon: ScrollText, roles: ['admin', 'authority', 'auditor'] },
   { to: '/app/documents', label: 'Documents', icon: Files, roles: ['supplier'] },
   { to: '/app/utilisateurs', label: 'Utilisateurs', icon: UsersRound, roles: ['admin'] },
-  { to: '/app/fraudes', label: 'Fraudes', icon: ShieldAlert, roles: ['admin'] },
-  { to: '/app/contrats', label: 'Contrats', icon: FileSignature, roles: ['admin'] },
+  { to: '/app/roles', label: 'Rôles & permissions', icon: Settings2, roles: ['admin'] },
+  { to: '/app/fraudes', label: 'Alertes de risque', icon: ShieldAlert, roles: ['admin', 'authority', 'auditor'] },
+  { to: '/app/contrats', label: 'Contrats', icon: FileSignature, roles: ['admin', 'authority', 'supplier'] },
 ]
 
 export default function AppLayout() {

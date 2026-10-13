@@ -39,7 +39,7 @@ async function request(path, options = {}) {
 
   if (!response.ok) {
     if (response.status === 401 && token) window.dispatchEvent(new Event('auth:expired'))
-    throw new ApiError(payload?.msg || 'Une erreur est survenue.', response.status, payload)
+    throw new ApiError(payload?.error || payload?.detail || payload?.msg || 'Une erreur est survenue.', response.status, payload)
   }
 
   return payload

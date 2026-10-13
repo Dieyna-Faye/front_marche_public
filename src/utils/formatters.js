@@ -61,16 +61,18 @@ export function initials(name = '') {
 }
 
 export function toTenderView(tender) {
+  const title = tender.title || tender.titre || ''
+  const type = tender.typeMarche || String(tender.type || '').toUpperCase()
   return {
     ...tender,
     id: String(tender.id),
-    title: tender.titre,
+    title,
     description: tender.description,
-    authority: tender.auteur?.nom || 'Autorité contractante',
-    type: marketTypeLabels[tender.typeMarche] || tender.typeMarche,
+    authority: tender.auteur?.nom || tender.creator?.firstName && `${tender.creator.firstName} ${tender.creator.lastName || ''}`.trim() || 'Autorité contractante',
+    type: marketTypeLabels[type] || type,
     budget: formatMoney(tender.budgetEstimatif),
-    deadline: formatDate(tender.dateLimiteSoumission),
-    published: formatDate(tender.updatedAt || tender.createdAt),
-    status: tenderStatusLabels[tender.statut] || tender.statut,
+    deadline: formatDate(tender.dateLimiteSoumission || tender.submissionDeadline),
+    published: formatDate(tender.publishedAt || tender.updatedAt || tender.createdAt),
+    status: tenderStatusLabels[tender.statut] || tenderStatusLabels[String(tender.status || '').toUpperCase()] || tender.status || tender.statut,
   }
 }

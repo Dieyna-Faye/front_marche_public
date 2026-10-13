@@ -62,7 +62,9 @@ export default function SubmissionFormPage() {
       const entries = Object.entries(documents).filter(([, file]) => file)
       const results = await Promise.allSettled(entries.map(([type, file]) => offerService.uploadDocument(offer.id, type, file)))
       const failedCount = results.filter((result) => result.status === 'rejected').length
-      showToast(failedCount ? `Offre soumise, mais ${failedCount} document(s) n’ont pas été ajouté(s).` : `Offre soumise — accusé ${offer.accuseReception}`, failedCount ? 'error' : 'success')
+      if (failedCount) throw new Error(`${failedCount} document(s) n’ont pas pu être ajoutés. Le brouillon est conservé; réessayez avant le dépôt définitif.`)
+      const submitted = await offerService.finalize(offer.id)
+      showToast(`Offre déposée — accusé ${submitted.accuseReception}`)
       navigate('/app/soumissions')
     } catch (requestError) {
       setError(requestError.message)

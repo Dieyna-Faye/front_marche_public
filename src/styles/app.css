@@ -442,6 +442,11 @@
 .submission-files-card article p small { color: #87969d; font-size: 7px; }
 .submission-files-card article > em { padding: 4px 7px; border-radius: 10px; background: #e2f5e8; color: #2a805c; font-size: 7px; font-style: normal; }
 .submission-files-card article button { width: 26px; height: 26px; padding: 0; display: grid; place-items: center; border: 0; background: transparent; color: #7c8d95; cursor: pointer; }
+.submission-files-card article button:disabled { opacity: .45; cursor: not-allowed; }
+.submission-review-note { max-width: 720px; color: #526f7b !important; line-height: 1.5; }
+.submission-review-actions { grid-column: 2 / -1; width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 0 0 10px; }
+.submission-review-actions textarea { flex: 1 1 100%; min-height: 52px; padding: 8px 10px; border: 1px solid #dbe5e9; border-radius: 6px; resize: vertical; font: inherit; font-size: 9px; }
+.submission-review-actions button { width: auto !important; min-height: 30px; padding: 0 10px !important; border: 1px solid #dbe5e9 !important; border-radius: 5px; background: #fff !important; font-size: 8px; }
 .submission-files-card > button { min-height: 38px; margin: 8px auto; display: block; border: 0; background: transparent; color: #557789; font-size: 8px; font-weight: 700; cursor: pointer; }
 .submission-journal { padding: 22px 20px; }
 .journal-timeline { margin-top: 23px; }
@@ -753,6 +758,46 @@
 .authority-audit-reports h3 { margin: 13px 0 4px; font-size: 10px; }
 .authority-audit-reports p { color: #809098; font-size: 7px; }
 .authority-audit-reports button { height: 27px; margin-top: auto; border: 0; border-radius: 3px; background: var(--navy); color: #fff; font-size: 7px; font-weight: 800; }
+.authority-audit-compose { margin: 0 0 18px; padding: 20px; border: 1px solid #dbe5e9; border-radius: 10px; background: #fff; box-shadow: 0 8px 26px #2039450b; }
+.authority-audit-compose header, .authority-audit-modal section > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.authority-audit-compose h2, .authority-audit-modal h2 { margin: 0 0 5px; color: var(--navy); font-size: 15px; }
+.authority-audit-compose p { margin: 0 0 14px; color: #72858e; font-size: 10px; }
+.authority-audit-compose header > button, .authority-audit-modal section > header > button { width: 32px; height: 32px; border: 1px solid #dbe5e9; border-radius: 7px; background: white; color: #5f737d; font-size: 20px; cursor: pointer; }
+.authority-audit-compose textarea { width: 100%; min-height: 100px; padding: 12px; border: 1px solid #dbe5e9; border-radius: 7px; color: var(--navy); font: inherit; resize: vertical; }
+.authority-audit-compose footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 12px; color: #809098; font-size: 9px; }
+.authority-audit-select { display: flex; align-items: center; gap: 8px; }
+.authority-audit-select select { min-width: 145px; height: 38px; border: 0; background: transparent; color: #607681; font-size: 9px; }
+.authority-audit-filters > span { display: flex; align-items: center; justify-content: center; gap: 7px; color: #607681; font-size: 9px; }
+.authority-audit-open { max-width: 255px; padding: 0; overflow: hidden; border: 0; background: transparent; color: #607681; text-align: left; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.authority-audit-table tr[role="button"] { cursor: pointer; }
+.authority-audit-table tr[role="button"]:hover { background: #f7fafb; }
+.authority-audit-more { padding: 14px; text-align: center; }
+.authority-audit-modal { position: fixed; z-index: 1000; inset: 0; display: grid; place-items: center; padding: 20px; background: #142a36a8; }
+.authority-audit-modal > section { width: min(100%, 680px); max-height: min(85vh, 800px); overflow: auto; padding: 24px; border-radius: 12px; background: white; box-shadow: 0 22px 70px #10283244; }
+.authority-audit-modal small { color: #80939b; font-size: 8px; font-weight: 800; letter-spacing: .08em; }
+.authority-audit-modal dl { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+.authority-audit-modal dl > div { padding: 11px; border-radius: 7px; background: #f5f8f9; }
+.authority-audit-modal dt { color: #809098; font-size: 8px; }
+.authority-audit-modal dd { margin: 5px 0 0; color: var(--navy); font-size: 10px; overflow-wrap: anywhere; }
+.authority-audit-modal h3 { margin: 18px 0 8px; color: var(--navy); font-size: 11px; }
+.authority-audit-modal pre { max-height: 270px; overflow: auto; padding: 14px; border-radius: 8px; background: #f5f8f9; color: #435d68; font: 10px/1.55 ui-monospace, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.authority-audit-modal footer { display: flex; justify-content: flex-end; margin-top: 16px; }
+.commission-dashboard > .stats-grid { margin-bottom: 24px; }
+.commission-dashboard > .section-card { margin-bottom: 20px; }
+.commission-worklist, .commission-tender-list { display: flex; flex-direction: column; }
+.commission-worklist > article, .commission-tender-list > article { min-height: 78px; padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #e8eef0; }
+.commission-worklist > article:last-child, .commission-tender-list > article:last-child { border-bottom: 0; }
+.commission-worklist > article > div:first-child, .commission-tender-list > article > div { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.commission-worklist > article b, .commission-tender-list > article b { color: var(--navy); font-size: 10px; }
+.commission-worklist > article small, .commission-tender-list > article small { color: #819199; font-size: 8px; }
+.commission-worklist > article span { color: #5f7680; font-size: 8px; }
+.commission-worklist > article > div:last-child { display: flex; flex-wrap: wrap; gap: 8px; }
+.commission-worklist a, .commission-tender-list a { padding: 8px 10px; border: 1px solid #dbe5e9; border-radius: 6px; color: #4c7181; font-size: 8px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.commission-worklist a:hover, .commission-tender-list a:hover { background: #eef5f7; }
+@media (max-width: 700px) { .commission-worklist > article, .commission-tender-list > article { align-items: flex-start; flex-direction: column; } .commission-worklist > article > div:last-child { width: 100%; } .authority-audit-modal dl { grid-template-columns: 1fr; } }
+.submission-analysis-list { margin-top: 12px; padding-top: 9px; border-top: 1px solid var(--border); }
+.submission-analysis-list h3 { margin: 0 0 7px; font-size: 11px; }
+.submission-analysis-list p { margin: 5px 0; color: var(--gray-500); font-size: 10px; }
 
 /* Figma — tableau de bord Fournisseur */
 .supplier-dashboard { width: min(100%, 1380px); margin: 0 auto; }
@@ -769,6 +814,43 @@
 .supplier-dashboard__stats strong { margin: 9px 0 4px; font: 700 24px 'Outfit'; }
 .supplier-dashboard__stats small { margin-top: auto; color: #d6e5ea; font-size: 7px; }
 .supplier-dashboard__stats article:nth-child(n+3) small { color: #73858e; }
+.admin-role-permission-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.admin-role-permission-card { padding: 18px; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.admin-role-permission-card > header, .admin-role-permission-card > header > div, .admin-role-permission-card > footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.admin-role-permission-card > header > div > span { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; background: #e8f1f4; color: var(--steel); }
+.admin-role-permission-card > header p { flex: 1; margin: 0; display: flex; flex-direction: column; gap: 3px; }
+.admin-role-permission-card > header small, .admin-role-permission-card > footer small { color: var(--gray-500); font-size: 11px; }
+.admin-role-permission-card > div { margin: 16px 0; display: grid; gap: 8px; }
+.admin-role-permission-card > div label { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.admin-role-permission-card input { accent-color: var(--steel); }
+.admin-role-permission-card > footer { padding-top: 12px; border-top: 1px solid var(--border); }
+@media (max-width: 760px) { .admin-role-permission-grid { grid-template-columns: 1fr; } }
+.contract-detail { width: min(100%, 1360px); margin: 0 auto; }
+.contract-detail__back { display: inline-flex; align-items: center; gap: 7px; margin: 0 0 14px; color: var(--steel); font-size: 12px; text-decoration: none; }
+.contract-detail > .authority-page-head > strong { align-self: flex-start; padding: 7px 10px; border-radius: 20px; background: #e6f0f2; color: var(--navy); font-size: 11px; }
+.contract-detail__stats { margin: 18px 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.contract-detail__stats article, .admin-contract-panel { padding: 17px; border: 1px solid var(--border); border-radius: 9px; background: #fff; }
+.contract-detail__stats article { display: flex; flex-direction: column; gap: 9px; }
+.contract-detail__stats small { color: var(--gray-500); font-size: 9px; font-weight: 800; }
+.contract-detail__stats b { color: var(--navy); font-size: 18px; }
+.contract-detail__grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, .8fr); gap: 16px; }
+.contract-detail__grid > main, .contract-detail__grid > aside { display: grid; align-content: start; gap: 16px; }
+.admin-contract-panel > header { min-height: 35px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.admin-contract-panel > header h2 { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.admin-contract-panel > header span, .contract-detail__list span { color: var(--gray-500); font-size: 10px; }
+.contract-detail__list { display: grid; gap: 7px; }
+.contract-detail__list > article { padding: 10px 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--border); }
+.contract-detail__list > article > div { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.contract-detail__list > article small { color: var(--gray-500); font-size: 10px; }
+.contract-detail__list select { max-width: 130px; padding: 6px; border: 1px solid var(--border); border-radius: 5px; background: #fff; }
+.contract-detail__inline-form, .contract-detail__form { margin-top: 14px; padding-top: 13px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: end; gap: 10px; border-top: 1px solid var(--border); }
+.contract-detail__inline-form label, .contract-detail__form label { display: grid; gap: 5px; color: var(--gray-500); font-size: 10px; }
+.contract-detail__inline-form input, .contract-detail__form input, .contract-detail__form textarea { min-width: 0; padding: 9px; border: 1px solid var(--border); border-radius: 5px; background: #fff; font: inherit; }
+.contract-detail__form h3, .contract-detail__form > label:nth-of-type(1), .contract-detail__form > label:nth-of-type(2), .contract-detail__form > label:nth-of-type(3), .contract-detail__form > button { grid-column: 1 / -1; }
+.contract-detail__form h3 { margin: 0; font-size: 12px; }
+.contract-detail__inline-form input[type="date"] { max-width: 165px; }
+.contract-detail__grid aside > .admin-contract-panel > p { font-size: 12px; }
+@media (max-width: 850px) { .contract-detail__stats { grid-template-columns: 1fr 1fr; }.contract-detail__grid { grid-template-columns: 1fr; } }
 .supplier-dashboard__charts { margin-bottom: 24px; display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 22px; }
 .supplier-evolution, .supplier-status, .supplier-recent, .supplier-notifications { border: 1px solid #dbe5e9; border-radius: 7px; background: #fff; }
 .supplier-evolution { min-height: 335px; padding: 21px; }

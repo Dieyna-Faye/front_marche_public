@@ -26,6 +26,9 @@ import EvaluationsPage from './pages/EvaluationsPage'
 import ScoringPage from './pages/ScoringPage'
 import AuditLogPage from './pages/AuditLogPage'
 import DocumentsPage from './pages/DocumentsPage'
+import AssistantPage from './pages/AssistantPage'
+import RolesPage from './pages/RolesPage'
+import ContractDetailsPage from './pages/ContractDetailsPage'
 
 export default function App() {
   return (
@@ -46,6 +49,7 @@ export default function App() {
           <Route path="appels-offres/:id" element={<TenderDetailsPage />} />
           <Route path="soumissions" element={<SubmissionsPage />} />
           <Route path="soumissions/:id" element={<SubmissionDetailsPage />} />
+          <Route path="assistant" element={<AssistantPage />} />
         </Route>
       </Route>
       <Route element={<ProtectedRoute roles={['admin', 'authority']} />}>
@@ -56,22 +60,27 @@ export default function App() {
           <Route index element={<CreateTenderPage />} />
         </Route>
       </Route>
-      <Route element={<ProtectedRoute roles={['authority']} />}>
-        <Route path="app/fournisseurs" element={<AppLayout />}>
-          <Route index element={<SuppliersPage />} />
-        </Route>
+      <Route element={<ProtectedRoute roles={['commission']} />}>
         <Route path="app/analyse" element={<AppLayout />}>
           <Route index element={<EvaluationsPage />} />
         </Route>
         <Route path="app/analyse/:id" element={<AppLayout />}>
           <Route index element={<EvaluationsPage />} />
         </Route>
+      </Route>
+      <Route element={<ProtectedRoute roles={['admin', 'authority', 'commission']} />}>
         <Route path="app/scoring" element={<AppLayout />}>
           <Route index element={<ScoringPage />} />
         </Route>
-        <Route path="app/audit" element={<AppLayout />}>
-          <Route index element={<AuditLogPage />} />
-        </Route>
+      </Route>
+      <Route element={<ProtectedRoute roles={['authority']} />}>
+        <Route path="app/fournisseurs" element={<AppLayout />}><Route index element={<SuppliersPage />} /></Route>
+      </Route>
+      <Route element={<ProtectedRoute roles={['admin', 'authority', 'auditor']} />}>
+        <Route path="app/audit" element={<AppLayout />}><Route index element={<AuditLogPage />} /></Route>
+      </Route>
+      <Route element={<ProtectedRoute roles={['admin']} />}>
+        <Route path="app/roles" element={<AppLayout />}><Route index element={<RolesPage />} /></Route>
       </Route>
       <Route element={<ProtectedRoute roles={['supplier']} />}>
         <Route path="app/soumissions/nouvelle" element={<AppLayout />}>
@@ -81,19 +90,20 @@ export default function App() {
           <Route index element={<DocumentsPage />} />
         </Route>
       </Route>
-      <Route element={<ProtectedRoute roles={['admin']} />}>
+      <Route element={<ProtectedRoute roles={['admin', 'authority', 'auditor']} />}>
         <Route path="app/utilisateurs" element={<AppLayout />}>
           <Route index element={<UsersPage />} />
         </Route>
         <Route path="app/utilisateurs/nouveau" element={<AppLayout />}>
           <Route index element={<CreateUserPage />} />
         </Route>
-        <Route path="app/fraudes" element={<AppLayout />}>
-          <Route index element={<RisksPage />} />
-        </Route>
-        <Route path="app/contrats" element={<AppLayout />}>
-          <Route index element={<ContractsPage />} />
-        </Route>
+      </Route>
+      <Route element={<ProtectedRoute roles={['admin', 'authority', 'auditor']} />}>
+        <Route path="app/fraudes" element={<AppLayout />}><Route index element={<RisksPage />} /></Route>
+      </Route>
+      <Route element={<ProtectedRoute roles={['admin', 'authority', 'supplier']} />}>
+        <Route path="app/contrats" element={<AppLayout />}><Route index element={<ContractsPage />} /></Route>
+        <Route path="app/contrats/:id" element={<AppLayout />}><Route index element={<ContractDetailsPage />} /></Route>
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

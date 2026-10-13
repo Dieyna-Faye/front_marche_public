@@ -33,8 +33,9 @@ function AdminSubmissions({ rows }) {
     <header><h1>Liste des Soumissions</h1><p>Visualisez les offres reçues et accédez rapidement aux dossiers à examiner.</p></header>
     <div className="admin-submission-stats"><article><span>SOUMISSIONS</span><strong>{rows.length}</strong><small>Total réel</small></article><article><span>ANALYSÉES</span><strong>{analyzed}</strong><small>{rows.length ? Math.round(analyzed / rows.length * 100) : 0}%</small></article><article><span>MONTANT TOTAL</span><strong>{formatMoney(totalBudget)}</strong><small>Proposé</small></article><article><span>NON CONFORMES</span><strong>{nonCompliant}</strong><small>Offres</small></article></div>
     <div className="admin-offer-grid">{cards.map((item)=>{
-      const supplier=item.supplier||'Fournisseur'; const amount=item.amount||formatMoney(item.montantPropose); const score=Math.min(100, 55 + (item.documentCount || 0) * 8);
-      return <article className="admin-offer" key={item.id}><header><div><span>{supplier.split(' ').map((word)=>word[0]).slice(0,2).join('')}</span><p><b>{supplier}</b><small>{item.id} · AO-{item.tenderId||item.tender}</small></p></div><em>{item.status || 'Soumise'}</em></header><div className="admin-offer__facts"><span><small>MONTANT</small><b>{amount}</b></span><span><small>DÉLAI</small><b>{item.delaiExecutionJours ? `${item.delaiExecutionJours} jours` : '—'}</b></span><span><small>APPEL D’OFFRES</small><b>{item.tenderTitle || `AO-${item.tenderId}`}</b></span></div><div className="admin-offer__score"><span>Score documentaire <b>{score}/100</b></span><i><em style={{width:`${score}%`}}/></i></div><Link to={`/app/soumissions/${item.id}`}>Consulter le dossier <ArrowUpRight size={13}/></Link></article>
+      const supplier=item.supplier||'Fournisseur'; const amount=item.amount||formatMoney(item.montantPropose);
+      const score = item.score?.globalScore
+      return <article className="admin-offer" key={item.id}><header><div><span>{supplier.split(' ').map((word)=>word[0]).slice(0,2).join('')}</span><p><b>{supplier}</b><small>{item.id} · AO-{item.tenderId||item.tender}</small></p></div><em>{item.status || 'Soumise'}</em></header><div className="admin-offer__facts"><span><small>MONTANT</small><b>{amount}</b></span><span><small>DÉLAI</small><b>{item.delaiExecutionJours ? `${item.delaiExecutionJours} jours` : '—'}</b></span><span><small>APPEL D’OFFRES</small><b>{item.tenderTitle || `AO-${item.tenderId}`}</b></span></div><div className="admin-offer__score"><span>Score global enregistré <b>{score == null ? '—' : `${score}/100`}</b></span><i><em style={{width:`${score || 0}%`}}/></i></div><Link to={`/app/soumissions/${item.id}`}>Consulter le dossier <ArrowUpRight size={13}/></Link></article>
     })}{cards.length === 0 && <p className="empty-copy">Aucune soumission enregistrée.</p>}</div>
   </div>
 }
@@ -42,7 +43,7 @@ function AdminSubmissions({ rows }) {
 function AuthoritySubmissions({ rows, loading, error }) {
   const cards = rows.slice(0, 4)
   const total = rows.length
-  const compliant = rows.filter((item) => ['SOUMISE', 'ACCEPTEE'].includes(item.statut)).length
+  const compliant = rows.filter((item) => item.isCompliant === true).length
   const averageAmount = rows.length ? rows.reduce((sum, item) => sum + Number(item.montantPropose || 0), 0) / rows.length : 0
   const riskCount = rows.filter((item) => item.statut === 'REJETEE').length
 
@@ -57,7 +58,7 @@ function AuthoritySubmissions({ rows, loading, error }) {
     </header>
 
     <div className="authority-submission-stats">
-      <article><span>TOTAL REVILLE</span><strong>{total}</strong><small>↗ +12,5%</small></article>
+      <article><span>TOTAL REÇU</span><strong>{total}</strong><small>Soumissions déposées</small></article>
       <article><span>CONFORMES</span><strong>{compliant}</strong><small>{total ? Math.round((compliant / total) * 100) : 0}%</small></article>
       <article><span>MONTANT MOYEN</span><strong>{formatMoney(averageAmount)}</strong></article>
       <article><span>OFFRES REJETÉES</span><strong>{riskCount}</strong><small>Décisions</small></article>
@@ -71,7 +72,7 @@ function AuthoritySubmissions({ rows, loading, error }) {
         const supplier = item.supplier || item.fournisseur?.nom || 'Fournisseur'
         const amount = item.amount || formatMoney(item.montantPropose)
         const reference = item.tenderId ? `AO-${item.tenderId}` : item.tender || 'AO-2024-0021'
-        const score = Math.min(100, 55 + (item.documentCount || 0) * 8 + (item.montantPropose ? 10 : 0))
+        const score = item.score?.globalScore
         const warning = ['REJETEE', 'EN_COURS_EVALUATION'].includes(item.statut)
         return <article className="authority-submission-card" key={item.id}>
           <header>
@@ -82,7 +83,7 @@ function AuthoritySubmissions({ rows, loading, error }) {
             <span><small>MONTANT</small><b>{amount}</b><em>Travaux Publics</em></span>
             <span><small>DÉLAI</small><b>{item.delaiExecutionJours ? `${item.delaiExecutionJours} jours` : '—'}</b><em className={warning ? 'is-red' : ''}>{item.status}</em></span>
           </div>
-          <div className={`authority-submission-score ${warning ? 'is-warning' : ''}`}><span>Score IA <b>{score}</b></span><i><em style={{ width: `${score}%` }} /></i></div>
+          <div className={`authority-submission-score ${warning ? 'is-warning' : ''}`}><span>Score global enregistré <b>{score == null ? '—' : `${score}/100`}</b></span><i><em style={{ width: `${score || 0}%` }} /></i></div>
           <footer>
             <div><Link title="Voir le détail" to={`/app/soumissions/${item.id}`}><Eye size={14} /></Link><button title="Télécharger" onClick={() => window.print()} type="button"><Download size={14} /></button>{warning && <TriangleAlert size={14} />}</div>
             <div><Link className="authority-card-btn" to={`/app/soumissions/${item.id}`}>Examiner</Link><Link className="authority-card-btn authority-card-btn--dark" to={`/app/scoring?offre=${item.id}`}>Analyser</Link></div>

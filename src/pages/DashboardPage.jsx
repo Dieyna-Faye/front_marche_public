@@ -1,4 +1,4 @@
-import { AlertTriangle, Archive, ArrowUpRight, Bell, BriefcaseBusiness, CalendarDays, CircleDollarSign, Download, Eye, FileStack, Megaphone, Send, Sparkles, TrendingUp, UsersRound, WalletCards } from 'lucide-react'
+import { AlertTriangle, Archive, ArrowUpRight, Bell, BriefcaseBusiness, CalendarDays, CircleDollarSign, Download, Eye, FileStack, Megaphone, Send, ShieldAlert, Sparkles, TrendingUp, UsersRound, WalletCards } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Badge, EmptyState, LinkAction, SectionCard, StatCard } from '../components/ui'
@@ -27,9 +27,14 @@ function AdminDashboard({ summary, user, tenders }) {
   const activeMarkets = tenders.slice(0, 3).map((tender) => ({
     title: tender.title,
     amount: tender.budget,
-    progress: tender.status === 'Archivé' ? 100 : tender.status === 'Publié' ? 65 : 25,
     status: tender.status,
+    deadline: tender.deadline,
   }))
+  const monthly = summary?.monthlySubmissions || []
+  const maxMonthly = Math.max(1, ...monthly.map((item) => item.count))
+  const chartPoints = monthly.map((item, index) => `${monthly.length < 2 ? 350 : index * 700 / (monthly.length - 1)},${220 - item.count / maxMonthly * 175}`)
+  const chartLine = chartPoints.length > 1 ? `M${chartPoints.join(' L')}` : ''
+  const chartArea = chartLine ? `${chartLine} L700 235 L0 235 Z` : ''
 
   return <div className="admin-dashboard">
     <header className="admin-dashboard__welcome"><h1>Bonjour, {firstName}</h1><p>Analysez toutes les offres de la plateforme et les données les plus fiables.</p></header>
@@ -38,10 +43,10 @@ function AdminDashboard({ summary, user, tenders }) {
 
     <div className="admin-dashboard__main">
       <div className="admin-stats">{adminStats.map(([Icon,label,value,helper,tone])=><article className={`admin-stat admin-stat--${tone}`} key={label}><header><span>{label}</span><i><Icon size={17}/></i></header><strong>{value}</strong><small>{helper}</small></article>)}</div>
-      <section className="admin-chart"><header><div><h2>Participation des Fournisseurs</h2><p>Taux de participation mensuel</p></div><Link to="/app/soumissions">Détails à suivre <ArrowUpRight size={13}/></Link></header><div className="admin-chart__plot"><div className="admin-chart__y"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div><svg viewBox="0 0 700 235" preserveAspectRatio="none" aria-label="Évolution de la participation"><defs><linearGradient id="adminArea" x1="0" x2="0" y1="0" y2="1"><stop stopColor="#567c8d" stopOpacity=".28"/><stop offset="1" stopColor="#567c8d" stopOpacity="0"/></linearGradient></defs><path className="admin-chart__area" d="M0 190 C70 165 96 172 150 142 S260 129 310 119 S405 145 458 98 S560 86 610 67 S670 54 700 38 L700 235 L0 235Z"/><path className="admin-chart__line" d="M0 190 C70 165 96 172 150 142 S260 129 310 119 S405 145 458 98 S560 86 610 67 S670 54 700 38"/></svg><div className="admin-chart__months">{['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sept','Oct','Nov','Déc'].map((month)=><span key={month}>{month}</span>)}</div></div></section>
+      <section className="admin-chart"><header><div><h2>Offres déposées</h2><p>Historique réel des six derniers mois</p></div><Link to="/app/soumissions">Consulter les offres <ArrowUpRight size={13}/></Link></header><div className="admin-chart__plot"><div className="admin-chart__y"><span>{maxMonthly}</span><span>{Math.round(maxMonthly * .75)}</span><span>{Math.round(maxMonthly * .5)}</span><span>{Math.round(maxMonthly * .25)}</span><span>0</span></div><svg viewBox="0 0 700 235" preserveAspectRatio="none" aria-label="Nombre d’offres réellement déposées par mois"><defs><linearGradient id="adminArea" x1="0" x2="0" y1="0" y2="1"><stop stopColor="#567c8d" stopOpacity=".28"/><stop offset="1" stopColor="#567c8d" stopOpacity="0"/></linearGradient></defs>{chartLine && <><path className="admin-chart__area" d={chartArea}/><path className="admin-chart__line" d={chartLine}/></>}</svg><div className="admin-chart__months">{monthly.map((item, index)=><span key={`${item.month}-${index}`}>{item.month}</span>)}</div></div></section>
     </div>
 
-    <section className="admin-markets"><header><div><h2>Marchés en Cours</h2><p>Suivi des appels d’offres réellement enregistrés</p></div><CircleDollarSign size={19}/></header><div>{activeMarkets.map(({title,amount,progress,status})=><article key={title}><span className="admin-market__tag">{status}</span><div className="admin-market__line"><b>{title}</b><strong>{amount}</strong></div><div className="admin-market__progress"><i style={{width:`${progress}%`}}/></div><small><span>Avancement procédural {progress}%</span><span>{status}</span></small></article>)}{activeMarkets.length === 0 && <p className="empty-copy">Aucun marché enregistré.</p>}</div></section>
+    <section className="admin-markets"><header><div><h2>Appels d’offres récents</h2><p>Statut, budget et échéance issus de la base</p></div><CircleDollarSign size={19}/></header><div>{activeMarkets.map(({title,amount,status,deadline})=><article key={title}><span className="admin-market__tag">{status}</span><div className="admin-market__line"><b>{title}</b><strong>{amount}</strong></div><small><span>Date limite : {deadline}</span><span>{status}</span></small></article>)}{activeMarkets.length === 0 && <p className="empty-copy">Aucun appel d’offres enregistré.</p>}</div></section>
   </div>
 }
 
@@ -86,6 +91,35 @@ function SupplierDashboard({ summary, user, tenders, offers }) {
   </div>
 }
 
+function CommissionDashboard({ tenders, offers, user }) {
+  const firstName = user?.name || 'Commission'
+  const pendingDocuments = offers.flatMap((offer) => (offer.documents || []).filter((document) => !['conforme', 'non_conforme'].includes(document.reviewStatus)).map((document) => ({ ...document, bid: offer })))
+  const waitingAnalysis = offers.filter((offer) => !offer.analyzedAt)
+  const waitingDecision = offers.filter((offer) => !offer.committeeDecision)
+  const orderedOffers = [...offers].sort((left, right) => Number(Boolean(left.analyzedAt)) - Number(Boolean(right.analyzedAt)) || new Date(right.dateSoumission || right.createdAt) - new Date(left.dateSoumission || left.createdAt))
+  const stats = [
+    [FileStack, 'Dossiers à examiner', pendingDocuments.length, 'Pièces sans revue motivée', 'navy'],
+    [Sparkles, 'Analyses à lancer', waitingAnalysis.length, 'Offres déposées sans analyse enregistrée', 'blue'],
+    [ShieldAlert, 'Décisions en attente', waitingDecision.length, 'Après examen et notation complets', 'orange'],
+    [Megaphone, 'Appels suivis', tenders.length, 'Procédures accessibles à la commission', 'green'],
+  ]
+  return <div className="dashboard-page commission-dashboard">
+    <header className="dashboard-welcome"><div><span className="eyebrow">ESPACE COMMISSION</span><h1>Bonjour, {firstName}</h1><p>Traitez les pièces, enregistrez vos notes et motivez chaque décision. Les actions de la commission sont conservées dans le journal d’audit.</p></div><div className="dashboard-welcome__actions"><Link className="btn btn--primary" to="/app/analyse">Ouvrir l’analyse approfondie</Link></div></header>
+    <div className="stats-grid">{stats.map(([Icon, label, value, helper, tone]) => <StatCard key={label} icon={Icon} label={label} value={value} helper={helper} tone={tone} />)}</div>
+    <SectionCard title="File de travail de la commission" subtitle="Les dossiers les plus urgents apparaissent en premier. Ouvrez un dossier pour consulter les revues enregistrées et traiter l’offre.">
+      <div className="commission-worklist">{orderedOffers.slice(0, 12).map((offer) => {
+        const tender = tenders.find((item) => String(item.id) === String(offer.appelOffresId))
+        const pendingCount = (offer.documents || []).filter((document) => !['conforme', 'non_conforme'].includes(document.reviewStatus)).length
+        const state = offer.committeeDecision ? `Décision : ${offer.committeeDecision === 'validee' ? 'validée' : 'rejetée'}` : !offer.analyzedAt ? 'Analyse à lancer' : pendingCount ? `${pendingCount} pièce(s) à examiner` : 'Décision à motiver'
+        return <article key={offer.id}><div><b>{offer.reference || `Offre ${offer.id}`}</b><small>{tender?.title || `Appel d’offres #${offer.appelOffresId}`} · {offer.fournisseur?.nom || 'Fournisseur'}</small><span>{formatMoney(offer.montantPropose)} · {offer.delaiExecutionJours ?? '—'} jours · {state}</span></div><div><Link to={`/app/soumissions/${offer.id}`}>Dossier complet</Link><Link to={`/app/analyse/${offer.appelOffresId}`}>Analyse approfondie</Link></div></article>
+      })}{orderedOffers.length === 0 && <p className="empty-copy">Aucune offre déposée. Les offres apparaîtront ici dès leur dépôt.</p>}</div>
+    </SectionCard>
+    <SectionCard title="Procédures disponibles" subtitle="Accédez directement à l’analyse des offres associées à une procédure.">
+      <div className="commission-tender-list">{tenders.map((tender) => <article key={tender.id}><div><b>{tender.title}</b><small>{tender.status} · {tender.deadline}</small></div><Link to={`/app/analyse/${tender.id}`}>Examiner les offres</Link></article>)}{tenders.length === 0 && <p className="empty-copy">Aucun appel d’offres disponible.</p>}</div>
+    </SectionCard>
+  </div>
+}
+
 export default function DashboardPage() {
   const { role, user } = useApp()
   const [summary, setSummary] = useState(null)
@@ -115,8 +149,8 @@ export default function DashboardPage() {
           setSummary(dashboard)
           setOffers(results.flatMap((result) => result.status === 'fulfilled' ? result.value : []))
         } else if (role === 'supplier') {
-          const [dashboard, myOffers] = await Promise.all([dashboardService.getSummary(), offerService.mine()])
-          setSummary(dashboard)
+          const myOffers = await offerService.mine()
+          setSummary(null)
           setOffers(myOffers)
         } else if (role === 'commission') {
           const results = await Promise.allSettled(tenderItems.map((tender) => offerService.byTender(tender.id)))
@@ -163,6 +197,11 @@ export default function DashboardPage() {
     if (loading) return <div className="loading-state"><span className="spinner" /> Chargement du tableau de bord…</div>
     if (error) return <EmptyState icon={FileStack} title="Tableau de bord indisponible" description={error} />
     return <SupplierDashboard summary={summary} user={user} tenders={tenders} offers={offers} />
+  }
+  if (role === 'commission') {
+    if (loading) return <div className="loading-state"><span className="spinner" /> Chargement des dossiers de la commission…</div>
+    if (error) return <EmptyState icon={FileStack} title="Espace commission indisponible" description={error} />
+    return <CommissionDashboard tenders={tenders} offers={offers} user={user} />
   }
 
   return (

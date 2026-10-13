@@ -76,9 +76,10 @@ export default function TenderDetailsPage({ publicView = false }) {
   if (error || !tender) return <EmptyState icon={FileText} title="Appel d’offres indisponible" description={error || 'Ressource introuvable.'} action={publicView ? <Link className="btn btn--primary" to="/connexion">Se connecter</Link> : null} />
 
   const canManage = role === 'admin' || role === 'authority'
+  const canPublish = role === 'authority'
   const actions = (
     <>
-      {canManage && tender.statut === 'BROUILLON' && <button className="btn btn--primary" disabled={busy} onClick={() => changeStatus('publish')} type="button">Publier</button>}
+      {canPublish && tender.statut === 'BROUILLON' && <button className="btn btn--primary" disabled={busy} onClick={() => changeStatus('publish')} type="button">Publier</button>}
       {canManage && tender.statut !== 'ARCHIVE' && <button className="btn btn--ghost" disabled={busy} onClick={() => changeStatus('archive')} type="button"><Archive size={17} /> Archiver</button>}
     </>
   )

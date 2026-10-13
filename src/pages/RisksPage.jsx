@@ -1,66 +1,41 @@
-import { AlertTriangle, Clock3, FileSearch, Network, ShieldAlert } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { auditService } from '../services/auditService'
-import { offerService } from '../services/offerService'
+import { AlertTriangle, RotateCcw, ShieldAlert } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { api } from '../api/client'
 import { tenderService } from '../services/tenderService'
 
+function parseMetadata(value) {
+  try { return typeof value === 'string' ? JSON.parse(value) : value || {} } catch { return {} }
+}
+
 export default function RisksPage() {
-  const [offers, setOffers] = useState([])
-  const [logs, setLogs] = useState([])
+  const [alerts, setAlerts] = useState([])
+  const [tenders, setTenders] = useState([])
+  const [selectedTender, setSelectedTender] = useState('')
   const [loading, setLoading] = useState(true)
+  const [scanning, setScanning] = useState(false)
   const [error, setError] = useState('')
-
-  useEffect(() => {
-    let active = true
-    const load = async () => {
-      try {
-        const tenders = await tenderService.list()
-        const [results, auditLogs] = await Promise.all([
-          Promise.allSettled(tenders.map((tender) => offerService.byTender(tender.id))),
-          auditService.list(20),
-        ])
-        if (!active) return
-        setOffers(results.flatMap((result) => result.status === 'fulfilled' ? result.value : []).map((offer) => ({ ...offer, tender: tenders.find((item) => item.id === offer.appelOffresId) })))
-        setLogs(auditLogs)
-      } catch (requestError) {
-        if (active) setError(requestError.message)
-      } finally {
-        if (active) setLoading(false)
-      }
-    }
-    load()
-    return () => { active = false }
-  }, [])
-
-  const risks = useMemo(() => offers.map((offer) => {
-    const budget = Number(offer.tender?.budgetEstimatif || 0)
-    const amount = Number(offer.montantPropose || 0)
-    const deviation = budget > 0 && amount > 0 ? Math.abs(1 - amount / budget) : 0
-    const missingDocuments = Math.max(0, 3 - (offer.documents?.length || 0))
-    const confidence = Math.min(99, Math.round(45 + deviation * 100 + missingDocuments * 8))
-    return {
-      ...offer,
-      severity: offer.statut === 'REJETEE' || deviation > .3 ? 'Élevé' : missingDocuments > 1 ? 'Moyen' : 'Faible',
-      title: deviation > .3 ? 'Écart financier important' : missingDocuments ? 'Dossier documentaire incomplet' : 'Contrôle standard',
-      confidence,
-    }
-  }).filter((risk) => risk.severity !== 'Faible').sort((a, b) => b.confidence - a.confidence), [offers])
-  const suppliers = [...new Set(offers.map((offer) => offer.fournisseur?.nom).filter(Boolean))].slice(0, 3)
-  const lead = risks[0]
-
-  if (loading) return <div className="loading-state"><span className="spinner" /> Analyse des risques…</div>
-  if (error) return <p className="authority-inline-error">{error}</p>
-
+  const load = async () => {
+    const [records, tendersResult] = await Promise.all([api.get('/alerts'), tenderService.list()])
+    setAlerts(records.filter((item) => item.type !== 'delay_prediction').map((item) => ({ ...item, metadataObject: parseMetadata(item.metadata) })))
+    setTenders(tendersResult)
+    setSelectedTender((current) => current || tendersResult[0]?.id || '')
+  }
+  useEffect(() => { let active = true; load().catch((err) => { if (active) setError(err.message) }).finally(() => { if (active) setLoading(false) }); return () => { active = false } }, [])
+  const scan = async () => {
+    if (!selectedTender) return
+    setScanning(true); setError('')
+    try { await api.post(`/alerts/scan/${selectedTender}`, {}); await load() }
+    catch (err) { setError(err.message) }
+    finally { setScanning(false) }
+  }
+  const resolve = async (alert) => {
+    setError('')
+    try { await api.post(`/alerts/${alert.id}/resolve`, { status: 'resolue' }); await load() }
+    catch (err) { setError(err.message) }
+  }
   return <div className="admin-fraud">
-    {lead && <section className="admin-fraud-alert"><span><AlertTriangle size={20}/></span><div><b>Alerte : {lead.title}</b><p>L’offre #{lead.id} de {lead.fournisseur?.nom || 'ce fournisseur'} présente un indice de vigilance de {lead.confidence}%.</p></div><Link to={`/app/soumissions/${lead.id}`}>Examiner le dossier</Link></section>}
-    <div className="admin-fraud__top">
-      <section className="admin-risk-map"><header><div><h1>Cartographie des Risques Relationnels</h1><p>Fournisseurs présents dans les soumissions réelles.</p></div><div><span>Risque calculé</span><span>Données persistées</span></div></header><div className="admin-risk-network">
-        <svg viewBox="0 0 650 330" preserveAspectRatio="none" aria-hidden="true"><path d="M195 85 L430 102 L330 270 Z"/><path d="M195 85 L330 270"/><path d="M430 102 L330 270"/></svg>
-        {suppliers.map((supplier, index) => <span className={`admin-risk-node admin-risk-node--${['one','two','three'][index]}`} key={supplier}>{index < 2 ? <ShieldAlert size={19}/> : <Network size={19}/>}<b>{supplier}</b></span>)}
-      </div></section>
-      <aside className="admin-risk-aside"><section><header><h2>Incidents potentiels</h2><span>{risks.length} détecté(s)</span></header>{risks.slice(0,3).map((risk)=><article key={risk.id}><div><b>{risk.fournisseur?.nom || 'Fournisseur'}</b><small>{risk.title}</small></div><em>{risk.severity}</em></article>)}{risks.length === 0 && <p className="empty-copy">Aucun risque élevé détecté.</p>}</section><section className="admin-risk-indicators"><h2>Indicateurs de vigilance</h2><span>Risque maximal <b>{lead?.confidence || 0}%</b></span><i><em style={{width:`${lead?.confidence || 0}%`}}/></i><span>Dossiers contrôlés <b>{offers.length}</b></span><i><em style={{width:`${offers.length ? 100 : 0}%`}}/></i></section></aside>
-    </div>
-    <section className="admin-security-logs"><header><h2>Logs de Sécurité & Activités</h2><p>Historique réel des événements récents.</p></header><div>{logs.slice(0,3).map((log)=><article key={log.id}><header><span><Clock3 size={13}/> {new Intl.DateTimeFormat('fr-SN', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(log.createdAt))}</span><em>Journalisé</em></header><h3>{log.action?.replaceAll('_', ' ')}</h3><p><FileSearch size={14}/>{log.utilisateur?.nom || 'Système'}</p></article>)}{logs.length === 0 && <p className="empty-copy">Aucune activité journalisée.</p>}</div></section>
+    <header className="authority-page-head"><div><h1>Alertes de risque</h1><p>Signaux enregistrés par l’analyse IA. Une alerte n’est pas une preuve et doit être vérifiée par une personne habilitée.</p></div><div className="authority-page-head__actions"><select value={selectedTender} onChange={(event) => setSelectedTender(event.target.value)}><option value="">Sélectionner un appel d’offres</option>{tenders.map((tender) => <option key={tender.id} value={tender.id}>{tender.reference} · {tender.title}</option>)}</select><button className="authority-btn authority-btn--dark" disabled={!selectedTender || scanning} onClick={scan} type="button"><RotateCcw size={14}/>{scanning ? 'Analyse…' : 'Analyser les offres'}</button></div></header>
+    {error && <p className="authority-inline-error" role="alert">{error}</p>}
+    {loading ? <div className="loading-state"><span className="spinner"/> Chargement des alertes…</div> : alerts.length === 0 ? <div className="empty-state"><ShieldAlert size={24}/><p>Aucune alerte enregistrée. Lancez une analyse sur un appel d’offres comportant des offres déposées.</p></div> : <section className="authority-score-table"><header><h2>Alertes enregistrées</h2><span>{alerts.length}</span></header><div><table><thead><tr><th>TYPE</th><th>APPEL D’OFFRES</th><th>SIGNAL OBSERVÉ</th><th>NIVEAU</th><th>STATUT</th><th>ACTION</th></tr></thead><tbody>{alerts.map((alert) => <tr key={alert.id}><td><AlertTriangle size={14}/> {alert.type}</td><td>{alert.tender?.reference || alert.metadataObject.tenderId || alert.entityId || '—'}</td><td>{alert.message || 'Signal sans détail'}</td><td>{alert.severity}</td><td>{alert.status}</td><td>{alert.status !== 'resolue' && <button className="authority-btn authority-btn--ghost" onClick={() => resolve(alert)} type="button">Marquer vérifiée</button>}</td></tr>)}</tbody></table></div></section>}
   </div>
 }
