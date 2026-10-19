@@ -15,7 +15,6 @@ export default function PublicLayout() {
         <nav className={open ? 'is-open' : ''}>
           <NavLink onClick={() => setOpen(false)} to="/" end>Accueil</NavLink>
           <NavLink onClick={() => setOpen(false)} to="/appels-offres">Appels d’offres</NavLink>
-          <Link onClick={() => setOpen(false)} to="/#fonctionnalites">Fonctionnalités</Link>
           <NavLink onClick={() => setOpen(false)} to="/a-propos">À propos</NavLink>
           <NavLink onClick={() => setOpen(false)} to="/contact">Contact</NavLink>
           <Link className="p-button p-button--dark p-header__login" onClick={() => setOpen(false)} to="/connexion">Se connecter</Link>
